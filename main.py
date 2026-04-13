@@ -7,7 +7,9 @@ from tqdm import tqdm
 def cycle_mutate(x, q, p):
     n = len(x)
     for i in range(n):
+        # change with prob p
         if np.random.random() <= p:
+            # pick between +/- with equal prob
             if np.random.randint(0, 2) == 1:
                 x[i] += 1
             else:
@@ -21,8 +23,8 @@ def run_ea(start, needle, q, n, p):
 
     while True:
         if np.array_equal(x, needle):
-            return (n, q, p, steps, True)
-        cycle_mutate(x, q, p)
+            return (n, q, steps)
+        cycle_mutate(x, q, p) # modifies x in place 
         steps += 1
 
 def run_one(args):
@@ -34,18 +36,18 @@ def run_one(args):
 def main():
     q_low = 2
     q_high = 5
-    n_low = 14
-    n_high = 15
+    n_low = 5
+    n_high = 15 
     runs = 100  
 
     jobs = [(n, q) for n in range(n_low, n_high + 1)
                   for q in range(q_low, q_high + 1)
                   for _ in range(runs)]
 
-    #gets teh intial slow compile out of the way
+    #gets the intitial slow compile out of the way
     _ = run_ea(np.array([0, 1]), np.array([1, 0]), 2, 2, 0.5)
 
-    with open("results2.txt", "w") as f:
+    with open("results.txt", "w") as f:
         with mp.Pool() as pool:
             for results in tqdm(pool.imap_unordered(run_one, jobs), total=len(jobs)):
                 line = ",".join(map(str, results))
